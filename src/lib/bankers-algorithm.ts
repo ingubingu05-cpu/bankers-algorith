@@ -27,10 +27,10 @@ export const checkSafety = (
   const work = [...available];
   const finish = Array(processes).fill(false);
   const safeSequence: number[] = [];
+  let processesAddedInLastPass = -1;
 
-  let count = 0;
-  while (count < processes) {
-    let found = false;
+  while(safeSequence.length < processes && processesAddedInLastPass !== 0) {
+    processesAddedInLastPass = 0;
     for (let i = 0; i < processes; i++) {
       if (!finish[i] && isLessOrEqual(need[i], work)) {
         for (let j = 0; j < resources; j++) {
@@ -38,14 +38,11 @@ export const checkSafety = (
         }
         finish[i] = true;
         safeSequence.push(i);
-        found = true;
-        count++;
+        processesAddedInLastPass++;
       }
     }
-    if (!found) {
-      break;
-    }
   }
+
 
   return {
     isSafe: finish.every((f) => f === true),
