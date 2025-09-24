@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "app-logo",
+      "description": "The BankSafe application logo.",
+      "imageUrl": "https://images.unsplash.com/photo-1684679674829-fc7b436ec8e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYW5rJTIwYnVpbGRpbmd8ZW58MHx8fHwxNzU4NzA4NDYwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bank building"
+    }
+  ]
 }
