@@ -52,7 +52,7 @@ export function LoanRequestForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       processId: "",
-      ...Object.fromEntries(resourceNames.map((name) => [name, 0])),
+      ...Object.fromEntries(resourceNames.map((name) => [name, ""])),
     },
   });
 
@@ -62,6 +62,10 @@ export function LoanRequestForm({
       processId: parseInt(values.processId),
       request,
     });
+    form.reset({
+        processId: "",
+        ...Object.fromEntries(resourceNames.map((name) => [name, ""])),
+    })
   }
 
   return (
@@ -84,7 +88,7 @@ export function LoanRequestForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Process</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isProcessing}>
+                  <Select onValueChange={field.onChange} value={field.value} disabled={isProcessing}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a process to request for" />

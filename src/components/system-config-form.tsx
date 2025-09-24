@@ -63,9 +63,9 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
   const step2Form = useForm<Step2Values>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      available: Array(dimensions?.resources || 0).fill(0),
-      max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill(0)),
-      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill(0)),
+      available: Array(dimensions?.resources || 0).fill(''),
+      max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill('')),
+      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill('')),
     },
   });
 
@@ -82,9 +82,9 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
   const handleStep1Submit = (values: Step1Values) => {
     setDimensions(values);
     step2Form.reset({
-      available: Array(values.resources).fill(0),
-      max: Array(values.processes).fill(Array(values.resources).fill(0)),
-      allocation: Array(values.processes).fill(Array(values.resources).fill(0)),
+      available: Array(values.resources).fill(''),
+      max: Array(values.processes).fill(Array(values.resources).fill('')),
+      allocation: Array(values.processes).fill(Array(values.resources).fill('')),
     });
     setStep(2);
   };
@@ -165,7 +165,7 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
                       <FormItem>
                         <FormLabel>Resource {resourceNames[index]}</FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input type="number" placeholder="0" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
