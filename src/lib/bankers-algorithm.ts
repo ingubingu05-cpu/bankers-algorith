@@ -28,9 +28,9 @@ export const checkSafety = (
   const finish = Array(processes).fill(false);
   const safeSequence: number[] = [];
   
-  let foundProcessInPass = true;
-  while(safeSequence.length < processes && foundProcessInPass) {
-    foundProcessInPass = false;
+  let processesAdded = true;
+  while (processesAdded) {
+    processesAdded = false;
     for (let i = 0; i < processes; i++) {
       if (!finish[i] && isLessOrEqual(need[i], work)) {
         for (let j = 0; j < resources; j++) {
@@ -38,7 +38,7 @@ export const checkSafety = (
         }
         finish[i] = true;
         safeSequence.push(i);
-        foundProcessInPass = true;
+        processesAdded = true;
       }
     }
   }
