@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   handleLoanRequest,
   checkSafety,
@@ -50,7 +50,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Initial safety check
-  useState(() => {
+  useEffect(() => {
     const { isSafe, safeSequence: initialSequence } = checkSafety(systemState);
     if (isSafe) {
       setAlertState({ type: "success", message: "Initial state is safe." });
@@ -59,7 +59,7 @@ export default function Home() {
       setAlertState({ type: "error", message: "Initial state is unsafe." });
       setSafeSequence([]);
     }
-  });
+  }, []);
 
   const processLoanRequest = (data: LoanRequest) => {
     setIsProcessing(true);
