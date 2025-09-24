@@ -40,6 +40,22 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
     max: z.array(
       z.array(z.coerce.number().min(0)).length(dimensions?.resources || 0)
     ).length(dimensions?.processes || 0),
+    allocation: z.array(
+      z.array(z.coerce.number().min(0)).length(dimensions?.resources || 0)
+    ).length(dimensions?.processes || 0),
+  }).refine(data => {
+    if(!dimensions) return true;
+    for(let i=0; i<dimensions.processes; i++) {
+        for(let j=0; j<dimensions.resources; j++) {
+            if(data.allocation[i][j] > data.max[i][j]) {
+                return false;
+            }
+        }
+    }
+    return true;
+  }, {
+    message: "Allocation cannot exceed Maximum Need for any process.",
+    path: ["allocation"],
   });
   
   type Step2Values = z.infer<typeof step2Schema>;
@@ -49,6 +65,7 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
     defaultValues: {
       available: Array(dimensions?.resources || 0).fill(0),
       max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill(0)),
+      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill(0)),
     },
   });
 
@@ -57,11 +74,17 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
     name: "max",
   });
 
+  const { fields: allocationFields } = useFieldArray({
+    control: step2Form.control,
+    name: "allocation",
+  });
+
   const handleStep1Submit = (values: Step1Values) => {
     setDimensions(values);
     step2Form.reset({
       available: Array(values.resources).fill(0),
       max: Array(values.processes).fill(Array(values.resources).fill(0)),
+      allocation: Array(values.processes).fill(Array(values.resources).fill(0)),
     });
     setStep(2);
   };
@@ -69,15 +92,13 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
   const handleStep2Submit = (values: Step2Values) => {
     if (!dimensions) return;
 
-    const allocation = Array(dimensions.processes).fill(0).map(() => Array(dimensions.resources).fill(0));
     const need = values.max.map((maxRow, p) =>
-      maxRow.map((maxVal, r) => maxVal - allocation[p][r])
+      maxRow.map((maxVal, r) => maxVal - values.allocation[p][r])
     );
     
     onSetup({
       ...dimensions,
       ...values,
-      allocation,
       need,
     });
   };
@@ -92,7 +113,7 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
             Initial System Configuration
         </CardTitle>
         <CardDescription>
-            {step === 1 ? "Define the number of processes and resources in your system." : "Define the available resources and the maximum need for each process."}
+            {step === 1 ? "Define the number of processes and resources in your system." : "Define the available resources, allocation, and maximum need for each process."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -153,34 +174,67 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
                 ))}
               </div>
             </div>
-            
-            <div>
-              <Label className="text-lg font-medium">Maximum Need Matrix</Label>
-               <div className="space-y-4 mt-2">
-                {maxFields.map((field, pIndex) => (
-                  <div key={field.id} className="flex items-center gap-4">
-                    <Label className="w-20">Process {pIndex}</Label>
-                    <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
-                      {Array.from({length: dimensions.resources}).map((_, rIndex) => (
-                        <FormField
-                          key={rIndex}
-                          control={step2Form.control}
-                          name={`max.${pIndex}.${rIndex}` as const}
-                          render={({ field }) => (
-                            <FormItem>
-                               <FormControl>
-                                <Input type="number" {...field} placeholder={`R${rIndex}`} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+                <div>
+                  <Label className="text-lg font-medium">Allocation Matrix</Label>
+                   <div className="space-y-4 mt-2">
+                    {allocationFields.map((field, pIndex) => (
+                      <div key={field.id} className="flex items-center gap-4">
+                        <Label className="w-20">Process {pIndex}</Label>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                          {Array.from({length: dimensions.resources}).map((_, rIndex) => (
+                            <FormField
+                              key={rIndex}
+                              control={step2Form.control}
+                              name={`allocation.${pIndex}.${rIndex}` as const}
+                              render={({ field }) => (
+                                <FormItem>
+                                   <FormControl>
+                                    <Input type="number" {...field} placeholder={`R${rIndex}`} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+
+                <div>
+                  <Label className="text-lg font-medium">Maximum Need Matrix</Label>
+                   <div className="space-y-4 mt-2">
+                    {maxFields.map((field, pIndex) => (
+                      <div key={field.id} className="flex items-center gap-4">
+                        <Label className="w-20">Process {pIndex}</Label>
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                          {Array.from({length: dimensions.resources}).map((_, rIndex) => (
+                            <FormField
+                              key={rIndex}
+                              control={step2Form.control}
+                              name={`max.${pIndex}.${rIndex}` as const}
+                              render={({ field }) => (
+                                <FormItem>
+                                   <FormControl>
+                                    <Input type="number" {...field} placeholder={`R${rIndex}`} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
             </div>
+            {step2Form.formState.errors.allocation && (
+                <p className="text-sm font-medium text-destructive">{step2Form.formState.errors.allocation.message}</p>
+            )}
 
             <div className="flex gap-4">
                 <Button variant="outline" onClick={() => setStep(1)}>Back</Button>
