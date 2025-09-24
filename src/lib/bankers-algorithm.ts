@@ -27,10 +27,10 @@ export const checkSafety = (
   const work = [...available];
   const finish = Array(processes).fill(false);
   const safeSequence: number[] = [];
-  let processesAddedInLastPass = -1;
-
-  while(safeSequence.length < processes && processesAddedInLastPass !== 0) {
-    processesAddedInLastPass = 0;
+  
+  let foundProcessInPass = true;
+  while(safeSequence.length < processes && foundProcessInPass) {
+    foundProcessInPass = false;
     for (let i = 0; i < processes; i++) {
       if (!finish[i] && isLessOrEqual(need[i], work)) {
         for (let j = 0; j < resources; j++) {
@@ -38,14 +38,13 @@ export const checkSafety = (
         }
         finish[i] = true;
         safeSequence.push(i);
-        processesAddedInLastPass++;
+        foundProcessInPass = true;
       }
     }
   }
 
-
   return {
-    isSafe: finish.every((f) => f === true),
+    isSafe: safeSequence.length === processes,
     safeSequence,
   };
 };
@@ -78,7 +77,7 @@ export const handleLoanRequest = (
       granted: false,
       newState: currentState,
       message: `Request denied for Process ${processId}. Resources not available. Process must wait.`,
-      safeSequence: [],
+      safeSequence: checkSafety(currentState).safeSequence,
     };
   }
 
@@ -107,7 +106,7 @@ export const handleLoanRequest = (
       granted: false,
       newState: currentState, // Revert to original state
       message: `Request for Process ${processId} denied. Granting it would lead to an unsafe state.`,
-      safeSequence: [],
+      safeSequence: checkSafety(currentState).safeSequence,
     };
   }
 };
