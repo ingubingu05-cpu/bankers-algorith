@@ -24,32 +24,35 @@ export const checkSafety = (
   state: SystemState
 ): { isSafe: boolean; safeSequence: number[] } => {
   const { processes, resources, available, allocation, need } = state;
+  
+  // Step 1: Initialize
   const work = [...available];
   const finish = Array(processes).fill(false);
   const safeSequence: number[] = [];
   
-  let count = 0;
-  while (count < processes) {
-    let found = false;
+  let processesAddedInPass = true;
+  while(processesAddedInPass) {
+    processesAddedInPass = false;
+    // Step 2: Find a process i that can execute
     for (let i = 0; i < processes; i++) {
       if (!finish[i] && isLessOrEqual(need[i], work)) {
+        // Step 3: Simulate process execution
         for (let j = 0; j < resources; j++) {
           work[j] += allocation[i][j];
         }
-        safeSequence.push(i);
         finish[i] = true;
-        found = true;
-        count++;
+        safeSequence.push(i);
+        processesAddedInPass = true;
       }
-    }
-    if (!found) {
-      break; // No process could be executed in a full pass, system is unsafe.
     }
   }
 
+  // Step 4: Check if all processes finished
+  const isSafe = finish.every(f => f === true);
+  
   return {
-    isSafe: safeSequence.length === processes,
-    safeSequence,
+    isSafe: isSafe,
+    safeSequence: isSafe ? safeSequence : [],
   };
 };
 
