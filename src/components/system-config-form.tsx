@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -23,16 +23,34 @@ const step1Schema = z.object({
 
 type Step1Values = z.infer<typeof step1Schema>;
 
+const defaultValuesStep1 = {
+  processes: 4,
+  resources: 3,
+};
+
+const defaultValuesStep2 = {
+    available: [5, 3, 4],
+    max: [
+        [3, 2, 2],
+        [1, 1, 2],
+        [4, 2, 3],
+        [2, 1, 1],
+    ],
+    allocation: [
+        [1, 0, 0],
+        [0, 1, 1],
+        [2, 1, 1],
+        [0, 0, 0],
+    ],
+};
+
 export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
   const [step, setStep] = useState(1);
   const [dimensions, setDimensions] = useState<{ processes: number; resources: number } | null>(null);
 
   const step1Form = useForm<Step1Values>({
     resolver: zodResolver(step1Schema),
-    defaultValues: {
-      processes: 5,
-      resources: 3,
-    },
+    defaultValues: defaultValuesStep1,
   });
 
   const step2Schema = z.object({
@@ -63,11 +81,25 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
   const step2Form = useForm<Step2Values>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      available: Array(dimensions?.resources || 0).fill(''),
-      max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill('')),
-      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill('')),
+      available: Array(dimensions?.resources || 0).fill(""),
+      max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill("")),
+      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill("")),
     },
   });
+
+  useEffect(() => {
+    if (step === 2 && dimensions) {
+      if (dimensions.processes === defaultValuesStep1.processes && dimensions.resources === defaultValuesStep1.resources) {
+        step2Form.reset(defaultValuesStep2);
+      } else {
+        step2Form.reset({
+          available: Array(dimensions.resources).fill(""),
+          max: Array(dimensions.processes).fill(Array(dimensions.resources).fill("")),
+          allocation: Array(dimensions.processes).fill(Array(dimensions.resources).fill("")),
+        });
+      }
+    }
+  }, [step, dimensions, step2Form]);
 
   const { fields: maxFields } = useFieldArray({
     control: step2Form.control,
@@ -81,11 +113,6 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
 
   const handleStep1Submit = (values: Step1Values) => {
     setDimensions(values);
-    step2Form.reset({
-      available: Array(values.resources).fill(''),
-      max: Array(values.processes).fill(Array(values.resources).fill('')),
-      allocation: Array(values.processes).fill(Array(values.resources).fill('')),
-    });
     setStep(2);
   };
 
