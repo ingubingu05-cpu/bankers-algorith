@@ -117,7 +117,7 @@ export function LoanRequestForm({
                     <FormItem>
                       <FormLabel>Resource {name}</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="0" {...field} disabled={isProcessing} />
+                        <Input type="number" placeholder="0" {...field} disabled={isProcessing} value={field.value ?? ''} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

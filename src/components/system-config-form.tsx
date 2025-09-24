@@ -81,9 +81,9 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
   const step2Form = useForm<Step2Values>({
     resolver: zodResolver(step2Schema),
     defaultValues: {
-      available: Array(dimensions?.resources || 0).fill(""),
-      max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill("")),
-      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill("")),
+      available: Array(dimensions?.resources || 0).fill(''),
+      max: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill('')),
+      allocation: Array(dimensions?.processes || 0).fill(Array(dimensions?.resources || 0).fill('')),
     },
   });
 
@@ -93,9 +93,9 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
         step2Form.reset(defaultValuesStep2);
       } else {
         step2Form.reset({
-          available: Array(dimensions.resources).fill(""),
-          max: Array(dimensions.processes).fill(Array(dimensions.resources).fill("")),
-          allocation: Array(dimensions.processes).fill(Array(dimensions.resources).fill("")),
+          available: Array(dimensions.resources).fill(''),
+          max: Array(dimensions.processes).fill(Array(dimensions.resources).fill('')),
+          allocation: Array(dimensions.processes).fill(Array(dimensions.resources).fill('')),
         });
       }
     }
@@ -192,7 +192,7 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
                       <FormItem>
                         <FormLabel>Resource {resourceNames[index]}</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="0" {...field} />
+                          <Input type="number" placeholder="0" {...field} value={field.value ?? ''} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -218,7 +218,7 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
                               render={({ field }) => (
                                 <FormItem>
                                    <FormControl>
-                                    <Input type="number" {...field} placeholder={`R${rIndex}`} />
+                                    <Input type="number" {...field} placeholder={`R${rIndex}`} value={field.value ?? ''} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
@@ -246,7 +246,7 @@ export function SystemConfigForm({ onSetup }: SystemConfigFormProps) {
                               render={({ field }) => (
                                 <FormItem>
                                    <FormControl>
-                                    <Input type="number" {...field} placeholder={`R${rIndex}`} />
+                                    <Input type="number" {...field} placeholder={`R${rIndex}`} value={field.value ?? ''} />
                                   </FormControl>
                                   <FormMessage />
                                 </FormItem>
