@@ -28,18 +28,22 @@ export const checkSafety = (
   const finish = Array(processes).fill(false);
   const safeSequence: number[] = [];
   
-  let processesAdded = true;
-  while (processesAdded) {
-    processesAdded = false;
+  let count = 0;
+  while (count < processes) {
+    let found = false;
     for (let i = 0; i < processes; i++) {
       if (!finish[i] && isLessOrEqual(need[i], work)) {
         for (let j = 0; j < resources; j++) {
           work[j] += allocation[i][j];
         }
-        finish[i] = true;
         safeSequence.push(i);
-        processesAdded = true;
+        finish[i] = true;
+        found = true;
+        count++;
       }
+    }
+    if (!found) {
+      break; // No process could be executed in a full pass, system is unsafe.
     }
   }
 
@@ -48,6 +52,7 @@ export const checkSafety = (
     safeSequence,
   };
 };
+
 
 /**
  * Handles a loan request using the Banker's Algorithm.
